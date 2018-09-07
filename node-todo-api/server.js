@@ -98,6 +98,22 @@ app.patch('/todos/:id', (req, res) => {
     });
 });
 
+
+app.post('/users', (req, res) => {
+
+    var user = new User(_.pick(req.body, ['email', 'password']));
+
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        console.log(`Token is: ${token}`);
+        res.header('X-AUTH', token).send(user.toJSON());
+    }).catch((e) => {
+        console.log('Unable to save user: ', e);
+        res.status(500).send(e.errmsg);
+    });
+});
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 })
