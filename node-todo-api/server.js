@@ -4,6 +4,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const {authenticate} = require('./middleware/authenticate');
 
 
 var {mongoose} = require('./db/mongoose');
@@ -114,9 +115,28 @@ app.post('/users', (req, res) => {
     });
 });
 
+
+
+
+app.get('/users/me', authenticate, (req, res) => {
+    /*
+    var token = req.header('X-AUTH');
+    User.findByToken(token).then((user) => {
+        if (!user) {
+            //res.status(401).send(e);
+            //OR
+            return Promise.reject();
+        } 
+        res.send(user);
+    }).catch((e) => {
+        res.status(401).send(e);
+    });
+    */
+   res.send(req.user);
+});
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 })
-
 
 module.exports = { app };
