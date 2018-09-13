@@ -45,7 +45,7 @@ app.get('/todos/:id', (req, res) => {
     //res.send(req.params.id);
     var id = req.params.id;
     if (!ObjectID.isValid(id)) {
-        res.status(400).send(`Invalid id: ${id}`);
+        return res.status(400).send(`Invalid id: ${id}`);
     }
 
     Todo.findById(id).then((todo) => {
@@ -53,6 +53,7 @@ app.get('/todos/:id', (req, res) => {
             return res.status(404).send(`Id is not found: ${id}`);
         }
         res.send({todo});
+
     }).catch((e) => {
         res.status(500).send(e);
     });
@@ -101,13 +102,12 @@ app.patch('/todos/:id', (req, res) => {
 
 
 app.post('/users', (req, res) => {
-
     var user = new User(_.pick(req.body, ['email', 'password']));
 
     user.save().then(() => {
         return user.generateAuthToken();
     }).then((token) => {
-        console.log(`Token is: ${token}`);
+        //console.log(`Token is: ${token}`);
         res.header('X-AUTH', token).send(user.toJSON());
     }).catch((e) => {
         console.log('Unable to save user: ', e);
@@ -119,19 +119,6 @@ app.post('/users', (req, res) => {
 
 
 app.get('/users/me', authenticate, (req, res) => {
-    /*
-    var token = req.header('X-AUTH');
-    User.findByToken(token).then((user) => {
-        if (!user) {
-            //res.status(401).send(e);
-            //OR
-            return Promise.reject();
-        } 
-        res.send(user);
-    }).catch((e) => {
-        res.status(401).send(e);
-    });
-    */
    res.send(req.user);
 });
 
