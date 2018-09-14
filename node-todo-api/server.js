@@ -133,8 +133,18 @@ app.get('/users/me', authenticate, (req, res) => {
    res.send(req.user);
 });
 
+app.delete('/users/me/token', authenticate, (req, res) => {
+    req.user.removeToken(req.token).then(() => {
+        res.send();
+    }, () => {
+        res.status(500).send('Can not logout');
+    });
+});
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
-})
+});
+
+
 
 module.exports = { app };

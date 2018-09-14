@@ -264,7 +264,7 @@ describe('POST /users/login', () => {
                 }
                 User.findById(users[1]._id).then((user) => {
                     expect(user.tokens[0].token).toBe(res.headers['x-auth']);
-                    done()
+                    done();
                 }).catch((e) => done(e));
             });
     });
@@ -280,6 +280,37 @@ describe('POST /users/login', () => {
             .expect((res) => {
                 expect(res.headers['x-auth']).toNotExist;
             })
+            .end(done);
+    });
+});
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        request(app)
+            .delete('/users/me/token')
+            .send()
+            .set('X-AUTH', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toNotExist;
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                User.findById(users[0]._id).then((user) => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+
+    it('should return 401 if token is invalid', (done) => {
+        request(app)
+            .delete('/users/me/token')
+            .send()
+            .set('X-AUTH', 'NON_EXISTENT_TOKEN')   
+            .expect(401)
             .end(done);
     });
 });
